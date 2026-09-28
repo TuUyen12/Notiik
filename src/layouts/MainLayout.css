@@ -1,0 +1,12 @@
+.layout-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-content {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
