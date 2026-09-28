@@ -3,6 +3,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
+import logoImg from '../../assets/images/Notiik.png';
 import './Workspace.css';
 
 // Các hằng số map
@@ -518,7 +519,7 @@ export default function Workspace() {
       <aside className="workspace-sidebar">
         <div className="sidebar-header">
           <div className="brand-logo" onClick={() => window.location.hash = ''} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <img src="/src/assets/images/Notiik.png" alt="Notiik Logo" style={{ height: '32px', width: 'auto', borderRadius: '6px' }} />
+            <img src={logoImg} alt="Notiik Logo" style={{ height: '32px', width: 'auto', borderRadius: '6px' }} />
             <span className="brand-text">Notiik</span>
           </div>
         </div>

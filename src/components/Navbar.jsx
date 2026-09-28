@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './Navbar.css';
 import AuthModal from './AuthModal';
 import { useAuth } from '../contexts/AuthContext';
+import logoImg from '../assets/images/Notiik.png';
 
 const navItems = [
   { label: 'Trang chủ', href: '#' },
@@ -31,7 +32,7 @@ export default function Navbar() {
     <>
       <nav className="topbar" aria-label="Main navigation">
         <div className="nav-brand" onClick={() => window.location.hash = ''} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <img src="/src/assets/images/Notiik.png" alt="Notiik Logo" style={{ height: '32px', width: 'auto', borderRadius: '6px' }} />
+          <img src={logoImg} alt="Notiik Logo" style={{ height: '32px', width: 'auto', borderRadius: '6px' }} />
           Notiik
         </div>
 
