@@ -3,6 +3,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { exportSingleNote, exportProjectToZip } from '../../utils/exportUtils';
 import logoImg from '../../assets/images/Notiik.png';
 import './Workspace.css';
 
@@ -42,6 +43,10 @@ export default function Workspace() {
   // States cho tính năng xóa
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
+
+  // State cho tính năng Xuất file
+  const [exportModalConfig, setExportModalConfig] = useState({ isOpen: false, type: null }); // type: 'note' | 'project'
+  const [isExporting, setIsExporting] = useState(false);
 
   const typingTimeoutRef = useRef(null); 
   const pendingUpdates = useRef({}); // Lưu trữ các trường cần update cùng lúc
@@ -508,6 +513,24 @@ export default function Workspace() {
 
 // Xóa logic handleTextTransform và handleImageUpload vì ReactQuill đã tự lo hết!
 
+  // 6. Xử lý xuất file
+  const handleExport = async (format) => {
+    setIsExporting(true);
+    try {
+      if (exportModalConfig.type === 'note' && activeNote) {
+        await exportSingleNote(activeNote, format);
+      } else if (exportModalConfig.type === 'project' && activeProject) {
+        await exportProjectToZip(activeProject, format);
+      }
+    } catch (error) {
+      console.error("Lỗi xuất file:", error);
+      alert("Có lỗi xảy ra khi xuất file!");
+    } finally {
+      setIsExporting(false);
+      setExportModalConfig({ isOpen: false, type: null });
+    }
+  };
+
   // Nếu đang loading thì hiện màn hình trắng hoặc xoay xoay (chống giật UI)
   if (loading) {
     return <div className="workspace-container" style={{ justifyContent: 'center', alignItems: 'center' }}>Đang tải dữ liệu...</div>;
@@ -739,8 +762,25 @@ export default function Workspace() {
             )}
             {/* Nút Chia Sẻ Dự án */}
             {(activeTab === 'projects' || activeTab === 'shared') && activeProject && (
-              <button className="btn-secondary" style={{ padding: '0.4rem 1rem' }} onClick={() => setIsShareModalOpen(true)}>
-                👥 Chia sẻ Dự án
+              <>
+                <button className="btn-secondary" style={{ padding: '0.4rem 1rem' }} onClick={() => setExportModalConfig({ isOpen: true, type: 'project' })}>
+                  📥 Tải Dự án (ZIP)
+                </button>
+                <button className="btn-secondary" style={{ padding: '0.4rem 1rem' }} onClick={() => setIsShareModalOpen(true)}>
+                  👥 Chia sẻ Dự án
+                </button>
+              </>
+            )}
+            
+            {/* Nút Tải 1 Ghi chú */}
+            {activeTab === 'personal' && activeNote && (
+              <button className="btn-secondary" style={{ padding: '0.4rem 1rem' }} onClick={() => setExportModalConfig({ isOpen: true, type: 'note' })}>
+                📥 Tải Ghi chú
+              </button>
+            )}
+            {(activeTab === 'projects' || activeTab === 'shared') && activeNote && (
+              <button className="btn-secondary" style={{ padding: '0.4rem 1rem' }} onClick={() => setExportModalConfig({ isOpen: true, type: 'note' })}>
+                📥 Tải Ghi chú
               </button>
             )}
             <button className="btn-icon notification">
@@ -902,6 +942,55 @@ export default function Workspace() {
               >
                 Xóa vĩnh viễn
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* MODAL CHỌN ĐỊNH DẠNG XUẤT FILE */}
+      {exportModalConfig.isOpen && (
+        <div className="share-modal-overlay" onClick={() => !isExporting && setExportModalConfig({ isOpen: false, type: null })}>
+          <div className="share-modal" onClick={e => e.stopPropagation()}>
+            <h3 style={{ marginBottom: '1rem', color: 'var(--wk-text-main)' }}>
+              {exportModalConfig.type === 'note' ? 'Tải Ghi chú xuống' : 'Tải Dự án xuống (ZIP)'}
+            </h3>
+            <p style={{ fontSize: '0.9rem', color: 'var(--wk-text-muted)', marginBottom: '1.5rem', lineHeight: '1.5' }}>
+              Vui lòng chọn định dạng file mà bạn muốn xuất:
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <button 
+                className="btn-secondary" 
+                style={{ textAlign: 'left', padding: '0.75rem 1rem', width: '100%', justifyContent: 'flex-start' }}
+                onClick={() => handleExport('md')}
+                disabled={isExporting}
+              >
+                📄 Markdown (.md) - Tốt nhất cho dân công nghệ
+              </button>
+              <button 
+                className="btn-secondary" 
+                style={{ textAlign: 'left', padding: '0.75rem 1rem', width: '100%', justifyContent: 'flex-start' }}
+                onClick={() => handleExport('doc')}
+                disabled={isExporting}
+              >
+                📝 Microsoft Word (.doc) - Dễ dàng chỉnh sửa
+              </button>
+              <button 
+                className="btn-secondary" 
+                style={{ textAlign: 'left', padding: '0.75rem 1rem', width: '100%', justifyContent: 'flex-start' }}
+                onClick={() => handleExport('pdf')}
+                disabled={isExporting}
+              >
+                📕 PDF (.pdf) - Chuẩn để in ấn và chia sẻ
+              </button>
+            </div>
+            
+            {isExporting && (
+              <p style={{ marginTop: '1rem', color: 'var(--wk-accent-main)', fontSize: '0.9rem', textAlign: 'center', fontWeight: 'bold' }}>
+                ⏳ Đang xử lý file, vui lòng đợi chút...
+              </p>
+            )}
+
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
+              <button className="btn-secondary" onClick={() => setExportModalConfig({ isOpen: false, type: null })} disabled={isExporting}>Đóng</button>
             </div>
           </div>
         </div>

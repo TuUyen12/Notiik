@@ -24,3 +24,13 @@
 - Người được mời có quyền bấm "Tham gia dự án" (cập nhật status thành 'accepted') hoặc "Từ chối" (xóa bản ghi).
 - Chỉ khi 'accepted', ghi chú đó mới xuất hiện bên tab "Đã chia sẻ" và cho phép vào chỉnh sửa.
 - Chủ nhân ghi chú có toàn quyền Xóa (Trash), trong khi người được mời bị ẩn nút Xóa.
+
+## 5. Tính Năng Dự án (Folders)
+- Dự án đóng vai trò như các thư mục chứa nhiều ghi chú con. Bảng `projects` chứa thông tin thư mục cha, bảng `notes` có `project_id`.
+- Khi chia sẻ 1 Dự án, toàn bộ các ghi chú con bên trong dự án đó cũng được chia sẻ theo (Bảng `project_shares`).
+
+## 6. Tính Năng Xuất File (Export / Download)
+- Tích hợp công cụ xuất dữ liệu tại thanh Topbar.
+- Hỗ trợ xuất 1 Ghi chú hoặc Tải toàn bộ 1 Dự án (nén file ZIP).
+- Hỗ trợ đa định dạng: Markdown (.md), MS Word (.doc), và PDF (.pdf).
+- Dùng `turndown` cho MD, `html2pdf.js` cho PDF, cấu trúc Blob đặc biệt cho Word, và `jszip` & `file-saver` để tải file nén trực tiếp tại trình duyệt (Client-side).
