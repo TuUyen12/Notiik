@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { exportSingleNote, exportProjectToZip } from '../../utils/exportUtils';
 import { importMarkdown, importWord, importPdfAsImages } from '../../utils/importUtils';
+import ImageAnnotationModal from '../../components/ImageAnnotationModal';
 import logoImg from '../../assets/images/Notiik.png';
 import './Workspace.css';
 
@@ -48,6 +49,9 @@ export default function Workspace() {
   // State cho tính năng Xuất file
   const [exportModalConfig, setExportModalConfig] = useState({ isOpen: false, type: null }); // type: 'note' | 'project'
   const [isExporting, setIsExporting] = useState(false);
+
+  // State cho Annotation (Chỉnh sửa ảnh/PDF)
+  const [annotationImage, setAnnotationImage] = useState(null);
 
   // State ẩn hiện Sidebar
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
@@ -605,6 +609,23 @@ export default function Workspace() {
     }
   };
 
+  // 8. Xử lý ghi chữ lên ảnh (Annotation PDF)
+  const handleEditorClick = (e) => {
+    // Nếu họ click vào ảnh (ví dụ ảnh PDF)
+    if (e.target.tagName === 'IMG' && activeNote) {
+      setAnnotationImage(e.target.src);
+    }
+  };
+
+  const handleSaveAnnotation = (newBase64) => {
+    if (!activeNote || !annotationImage) return;
+    
+    // Thay thế chuỗi ảnh cũ bằng chuỗi ảnh mới trong nội dung HTML
+    const newContent = activeNote.content.replace(annotationImage, newBase64);
+    handleUpdateNote('content', newContent);
+    setAnnotationImage(null);
+  };
+
   // Nếu đang loading thì hiện màn hình trắng hoặc xoay xoay (chống giật UI)
   if (loading) {
     return <div className="workspace-container" style={{ justifyContent: 'center', alignItems: 'center' }}>Đang tải dữ liệu...</div>;
@@ -927,7 +948,7 @@ export default function Workspace() {
             )
           ) : (
             activeNote ? (
-              <div className="editor-paper" style={{ display: 'flex', flexDirection: 'column' }}>
+              <div className="editor-paper" style={{ display: 'flex', flexDirection: 'column' }} onClick={handleEditorClick}>
                 <input 
                   type="text"
                   className="editor-title-input" 
@@ -951,7 +972,7 @@ export default function Workspace() {
                       ['clean']
                     ],
                   }}
-                  placeholder="Bắt đầu viết nội dung ghi chú ở đây..."
+                  placeholder="Bắt đầu viết nội dung ghi chú ở đây... (Hoặc Click đúp vào ảnh PDF để ghi chữ đè lên ảnh)"
                   className="notiik-quill"
                 />
               </div>
@@ -1102,6 +1123,15 @@ export default function Workspace() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* MODAL GHI CHÚ LÊN ẢNH (PDF ANNOTATION) */}
+      {annotationImage && (
+        <ImageAnnotationModal 
+          imageUrl={annotationImage}
+          onSave={handleSaveAnnotation}
+          onClose={() => setAnnotationImage(null)}
+        />
       )}
     </div>
   );
