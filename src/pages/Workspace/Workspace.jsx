@@ -566,7 +566,7 @@ export default function Workspace() {
         title: title,
         content: htmlContent,
         project_id: projectId,
-        owner_id: currentUser.id
+        user_id: currentUser.id
       };
 
       const { data, error } = await supabase.from('notes').insert([newNote]).select();
