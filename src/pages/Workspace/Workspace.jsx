@@ -517,8 +517,8 @@ export default function Workspace() {
       {/* 1. SIDEBAR */}
       <aside className="workspace-sidebar">
         <div className="sidebar-header">
-          <div className="brand-logo" onClick={() => window.location.hash = ''} style={{ cursor: 'pointer' }}>
-            <div className="logo-icon"></div>
+          <div className="brand-logo" onClick={() => window.location.hash = ''} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <img src="/src/assets/images/Notiik.png" alt="Notiik Logo" style={{ height: '32px', width: 'auto', borderRadius: '6px' }} />
             <span className="brand-text">Notiik</span>
           </div>
         </div>

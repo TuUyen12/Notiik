@@ -30,7 +30,8 @@ export default function Navbar() {
   return (
     <>
       <nav className="topbar" aria-label="Main navigation">
-        <div className="nav-brand" onClick={() => window.location.hash = ''} style={{ cursor: 'pointer' }}>
+        <div className="nav-brand" onClick={() => window.location.hash = ''} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <img src="/src/assets/images/Notiik.png" alt="Notiik Logo" style={{ height: '32px', width: 'auto', borderRadius: '6px' }} />
           Notiik
         </div>
 
