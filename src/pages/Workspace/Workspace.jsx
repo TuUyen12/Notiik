@@ -48,6 +48,9 @@ export default function Workspace() {
   const [exportModalConfig, setExportModalConfig] = useState({ isOpen: false, type: null }); // type: 'note' | 'project'
   const [isExporting, setIsExporting] = useState(false);
 
+  // State ẩn hiện Sidebar
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+
   const typingTimeoutRef = useRef(null); 
   const pendingUpdates = useRef({}); // Lưu trữ các trường cần update cùng lúc
   const textareaRef = useRef(null);
@@ -537,7 +540,7 @@ export default function Workspace() {
   }
 
   return (
-    <div className="workspace-container">
+    <div className={`workspace-container ${!isSidebarVisible ? 'sidebar-hidden' : ''}`}>
       {/* 1. SIDEBAR */}
       <aside className="workspace-sidebar">
         <div className="sidebar-header">
@@ -741,14 +744,23 @@ export default function Workspace() {
       {/* 3. EDITOR OR NOTIFICATION DETAIL */}
       <main className="workspace-editor">
         <header className="editor-topbar">
-          <div className="topbar-search">
-             <span className="search-icon">🔍</span>
-             <input 
-               type="text" 
-               placeholder="Tìm kiếm..." 
-               value={searchKeyword}
-               onChange={(e) => setSearchKeyword(e.target.value)}
-             />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button 
+              className="btn-icon" 
+              onClick={() => setIsSidebarVisible(!isSidebarVisible)}
+              title={isSidebarVisible ? "Ẩn cột thuộc tính" : "Hiện cột thuộc tính"}
+            >
+              {isSidebarVisible ? '◧' : '◨'}
+            </button>
+            <div className="topbar-search">
+               <span className="search-icon">🔍</span>
+               <input 
+                 type="text" 
+                 placeholder="Tìm kiếm..." 
+                 value={searchKeyword}
+                 onChange={(e) => setSearchKeyword(e.target.value)}
+               />
+            </div>
           </div>
           <div className="topbar-actions">
             {activeTab === 'projects' && (

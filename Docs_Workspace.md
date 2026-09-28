@@ -34,3 +34,7 @@
 - Hỗ trợ xuất 1 Ghi chú hoặc Tải toàn bộ 1 Dự án (nén file ZIP).
 - Hỗ trợ đa định dạng: Markdown (.md), MS Word (.doc), và PDF (.pdf).
 - Dùng `turndown` cho MD, `html2pdf.js` cho PDF, cấu trúc Blob đặc biệt cho Word, và `jszip` & `file-saver` để tải file nén trực tiếp tại trình duyệt (Client-side).
+
+## 7. Chế độ Tập trung (Zen Mode)
+- Nút toggle hình `◧` / `◨` trên thanh Topbar cho phép ẩn toàn bộ cột điều hướng (Sidebar) và cột danh sách (Notes List).
+- Khi kích hoạt, trình soạn thảo Editor sẽ mở rộng toàn màn hình, tạo không gian tập trung tối đa cho việc viết lách. Mọi thứ được xử lý gọn gàng bằng CSS class `.sidebar-hidden`.

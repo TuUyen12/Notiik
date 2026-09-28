@@ -18,6 +18,13 @@
   overflow: hidden;
 }
 
+/* Zen Mode (Ẩn cột) */
+.workspace-container.sidebar-hidden .workspace-sidebar,
+.workspace-container.sidebar-hidden .workspace-notes-list {
+  display: none;
+}
+
+
 /* 1. SIDEBAR */
 .workspace-sidebar {
   width: 240px;
