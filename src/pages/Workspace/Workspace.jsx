@@ -760,27 +760,17 @@ export default function Workspace() {
             {activeTab === 'personal' && (
               <button className="btn-new-note" onClick={() => handleCreateNote(null)}>+ Tạo Ghi chú</button>
             )}
-            {/* Nút Chia Sẻ Dự án */}
-            {(activeTab === 'projects' || activeTab === 'shared') && activeProject && (
-              <>
-                <button className="btn-secondary" style={{ padding: '0.4rem 1rem' }} onClick={() => setExportModalConfig({ isOpen: true, type: 'project' })}>
-                  📥 Tải Dự án (ZIP)
-                </button>
-                <button className="btn-secondary" style={{ padding: '0.4rem 1rem' }} onClick={() => setIsShareModalOpen(true)}>
-                  👥 Chia sẻ Dự án
-                </button>
-              </>
-            )}
-            
-            {/* Nút Tải 1 Ghi chú */}
-            {activeTab === 'personal' && activeNote && (
+            {/* Nút Tải xuống (Canva style) */}
+            {(activeNote || activeProject) && activeTab !== 'inbox' && (
               <button className="btn-secondary" style={{ padding: '0.4rem 1rem' }} onClick={() => setExportModalConfig({ isOpen: true, type: 'note' })}>
-                📥 Tải Ghi chú
+                📥 Tải xuống
               </button>
             )}
-            {(activeTab === 'projects' || activeTab === 'shared') && activeNote && (
-              <button className="btn-secondary" style={{ padding: '0.4rem 1rem' }} onClick={() => setExportModalConfig({ isOpen: true, type: 'note' })}>
-                📥 Tải Ghi chú
+
+            {/* Nút Chia Sẻ Dự án */}
+            {(activeTab === 'projects' || activeTab === 'shared') && activeProject && (
+              <button className="btn-secondary" style={{ padding: '0.4rem 1rem' }} onClick={() => setIsShareModalOpen(true)}>
+                👥 Chia sẻ Dự án
               </button>
             )}
             <button className="btn-icon notification">
@@ -948,13 +938,29 @@ export default function Workspace() {
       )}
       {/* MODAL CHỌN ĐỊNH DẠNG XUẤT FILE */}
       {exportModalConfig.isOpen && (
-        <div className="share-modal-overlay" onClick={() => !isExporting && setExportModalConfig({ isOpen: false, type: null })}>
+        <div className="share-modal-overlay" onClick={() => !isExporting && setExportModalConfig({ isOpen: false, type: 'note' })}>
           <div className="share-modal" onClick={e => e.stopPropagation()}>
-            <h3 style={{ marginBottom: '1rem', color: 'var(--wk-text-main)' }}>
-              {exportModalConfig.type === 'note' ? 'Tải Ghi chú xuống' : 'Tải Dự án xuống (ZIP)'}
-            </h3>
-            <p style={{ fontSize: '0.9rem', color: 'var(--wk-text-muted)', marginBottom: '1.5rem', lineHeight: '1.5' }}>
-              Vui lòng chọn định dạng file mà bạn muốn xuất:
+            <h3 style={{ marginBottom: '1rem', color: 'var(--wk-text-main)' }}>Tải xuống</h3>
+            
+            {/* Chọn phạm vi tải (Chỉ hiện khi ở trong 1 dự án) */}
+            {(activeTab === 'projects' || activeTab === 'shared') && activeProject && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', fontSize: '0.9rem', color: 'var(--wk-text-muted)', marginBottom: '0.5rem' }}>Phạm vi tải:</label>
+                <select 
+                  className="share-email-input" 
+                  value={exportModalConfig.type} 
+                  onChange={(e) => setExportModalConfig({ ...exportModalConfig, type: e.target.value })}
+                  disabled={isExporting}
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #e5e7eb' }}
+                >
+                  <option value="note">Chỉ tải Ghi chú hiện tại</option>
+                  <option value="project">Tải toàn bộ Dự án (file ZIP)</option>
+                </select>
+              </div>
+            )}
+
+            <p style={{ fontSize: '0.9rem', color: 'var(--wk-text-muted)', marginBottom: '0.75rem', lineHeight: '1.5' }}>
+              Chọn định dạng file xuất:
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <button 
@@ -990,7 +996,7 @@ export default function Workspace() {
             )}
 
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
-              <button className="btn-secondary" onClick={() => setExportModalConfig({ isOpen: false, type: null })} disabled={isExporting}>Đóng</button>
+              <button className="btn-secondary" onClick={() => setExportModalConfig({ isOpen: false, type: 'note' })} disabled={isExporting}>Đóng</button>
             </div>
           </div>
         </div>
