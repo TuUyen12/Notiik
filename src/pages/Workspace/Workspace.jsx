@@ -4,6 +4,7 @@ import 'react-quill/dist/quill.snow.css';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { exportSingleNote, exportProjectToZip } from '../../utils/exportUtils';
+import { importMarkdown, importWord, importPdfAsImages } from '../../utils/importUtils';
 import logoImg from '../../assets/images/Notiik.png';
 import './Workspace.css';
 
@@ -534,6 +535,76 @@ export default function Workspace() {
     }
   };
 
+  // 7. Xử lý nhập file (Import)
+  const [isImporting, setIsImporting] = useState(false);
+  const handleImportFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    try {
+      const fileName = file.name;
+      const fileExt = fileName.split('.').pop().toLowerCase();
+      const title = fileName.replace(/\.[^/.]+$/, ""); // Bỏ đuôi file
+      let htmlContent = '';
+
+      if (fileExt === 'md' || fileExt === 'txt') {
+        htmlContent = await importMarkdown(file);
+      } else if (fileExt === 'docx') {
+        htmlContent = await importWord(file);
+      } else if (fileExt === 'pdf') {
+        htmlContent = await importPdfAsImages(file);
+      } else {
+        alert("Định dạng file chưa được hỗ trợ!");
+        return;
+      }
+
+      // Tạo ghi chú mới với nội dung vừa lấy
+      const projectId = (activeTab === 'projects' || activeTab === 'shared') && activeProject ? activeProject.id : null;
+      
+      const newNote = {
+        title: title,
+        content: htmlContent,
+        project_id: projectId,
+        owner_id: currentUser.id
+      };
+
+      const { data, error } = await supabase.from('notes').insert([newNote]).select();
+      
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        // Cập nhật UI
+        const createdNote = data[0];
+        setNotesData(prev => {
+          const newData = { ...prev };
+          if (projectId) {
+            const projectList = activeTab === 'shared' ? newData.shared : newData.projects;
+            const projectIndex = projectList.findIndex(p => p.id === projectId);
+            if (projectIndex >= 0) {
+              projectList[projectIndex].notes = [createdNote, ...projectList[projectIndex].notes];
+              projectList[projectIndex].isExpanded = true;
+            }
+          } else {
+            newData.personal = [createdNote, ...newData.personal];
+          }
+          return newData;
+        });
+        
+        setActiveNoteId(createdNote.id);
+        if (activeTab === 'inbox') setActiveTab('personal');
+      }
+
+    } catch (error) {
+      console.error("Lỗi khi nhập file:", error);
+      alert("Lỗi khi đọc file: " + error.message);
+    } finally {
+      setIsImporting(false);
+      // Xóa input value để có thể chọn lại cùng 1 file
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   // Nếu đang loading thì hiện màn hình trắng hoặc xoay xoay (chống giật UI)
   if (loading) {
     return <div className="workspace-container" style={{ justifyContent: 'center', alignItems: 'center' }}>Đang tải dữ liệu...</div>;
@@ -772,6 +843,25 @@ export default function Workspace() {
             {activeTab === 'personal' && (
               <button className="btn-new-note" onClick={() => handleCreateNote(null)}>+ Tạo Ghi chú</button>
             )}
+            {/* Nút Nhập File (Import) */}
+            <input 
+              type="file" 
+              accept=".txt,.md,.docx,.pdf" 
+              style={{ display: 'none' }} 
+              ref={fileInputRef}
+              onChange={handleImportFile}
+            />
+            {activeTab !== 'inbox' && (
+              <button 
+                className="btn-secondary" 
+                style={{ padding: '0.4rem 1rem' }} 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isImporting}
+              >
+                {isImporting ? '⏳ Đang xử lý...' : '📤 Nhập File'}
+              </button>
+            )}
+
             {/* Nút Tải xuống (Canva style) */}
             {(activeNote || activeProject) && activeTab !== 'inbox' && (
               <button className="btn-secondary" style={{ padding: '0.4rem 1rem' }} onClick={() => setExportModalConfig({ isOpen: true, type: 'note' })}>

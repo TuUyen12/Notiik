@@ -38,3 +38,8 @@
 ## 7. Chế độ Tập trung (Zen Mode)
 - Nút toggle hình `◧` / `◨` trên thanh Topbar cho phép ẩn toàn bộ cột điều hướng (Sidebar) và cột danh sách (Notes List).
 - Khi kích hoạt, trình soạn thảo Editor sẽ mở rộng toàn màn hình, tạo không gian tập trung tối đa cho việc viết lách. Mọi thứ được xử lý gọn gàng bằng CSS class `.sidebar-hidden`.
+
+## 8. Tính Năng Nhập File (Import)
+- Hỗ trợ tải các file có sẵn từ máy tính (Markdown, Text, Word, PDF) và chuyển đổi thành Ghi chú trực tiếp trên Notiik.
+- Sử dụng các thư viện `marked` (cho MD), `mammoth` (cho Word).
+- Riêng với PDF: Sử dụng `pdf.js` để render từng trang PDF thành hình ảnh Base64 và chèn liên tiếp vào khung soạn thảo. Điều này cho phép người dùng xem toàn bộ file PDF như các bức ảnh và có thể gõ chữ xen kẽ hoặc bên dưới.
